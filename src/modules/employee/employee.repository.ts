@@ -11,7 +11,7 @@ export class EmployeeRepository {
   findAll(): Employee[] {
     const db = getDatabase();
     return db
-      .prepare("SELECT * FROM employees ORDER BY created_at DESC")
+      .prepare("SELECT * FROM employees ORDER BY id ASC")
       .all() as Employee[];
   }
 
@@ -24,75 +24,94 @@ export class EmployeeRepository {
 
   create(data: CreateEmployeeDTO): Employee {
     const db = getDatabase();
-    const stmt = db.prepare(`
-      INSERT INTO employees (full_name, job_title, country, salary)
-      VALUES (@full_name, @job_title, @country, @salary)
-    `);
 
-    const result = stmt.run(data);
+    const result = db
+      .prepare(
+        `
+        INSERT INTO employees (full_name, job_title, country, salary)
+        VALUES (@full_name, @job_title, @country, @salary)
+      `
+      )
+      .run(data);
+
     return this.findById(result.lastInsertRowid as number)!;
   }
 
   update(id: number, data: UpdateEmployeeDTO): Employee | undefined {
     const db = getDatabase();
-
     const existing = this.findById(id);
+
     if (!existing) return undefined;
 
-    const updated = { ...existing, ...data };
+    const updated = {
+      ...existing,
+      ...data,
+    };
 
-    db.prepare(`
-      UPDATE employees 
+    db.prepare(
+      `
+      UPDATE employees
       SET full_name = @full_name,
           job_title = @job_title,
           country = @country,
           salary = @salary,
           updated_at = datetime('now')
       WHERE id = @id
-    `).run({ ...updated, id });
+    `
+    ).run({
+      id,
+      full_name: updated.full_name,
+      job_title: updated.job_title,
+      country: updated.country,
+      salary: updated.salary,
+    });
 
     return this.findById(id);
   }
 
   delete(id: number): boolean {
     const db = getDatabase();
-    const result = db
-      .prepare("DELETE FROM employees WHERE id = ?")
-      .run(id);
+    const result = db.prepare("DELETE FROM employees WHERE id = ?").run(id);
     return result.changes > 0;
   }
 
   findMetricsByCountry(country: string): SalaryMetricsByCountry | undefined {
     const db = getDatabase();
-    const result = db.prepare(`
-      SELECT 
-        country,
-        MIN(salary) as minimum_salary,
-        MAX(salary) as maximum_salary,
-        AVG(salary) as average_salary,
-        COUNT(*) as employee_count
-      FROM employees
-      WHERE LOWER(country) = LOWER(?)
-      GROUP BY country
-    `).get(country) as SalaryMetricsByCountry | undefined;
 
-    return result;
+    return db
+      .prepare(
+        `
+        SELECT
+          country,
+          MIN(salary) AS minimum_salary,
+          MAX(salary) AS maximum_salary,
+          ROUND(AVG(salary), 2) AS average_salary,
+          COUNT(*) AS employee_count
+        FROM employees
+        WHERE LOWER(country) = LOWER(?)
+        GROUP BY country
+      `
+      )
+      .get(country) as SalaryMetricsByCountry | undefined;
   }
 
   findAverageSalaryByJobTitle(
     jobTitle: string
   ): SalaryMetricsByJobTitle | undefined {
     const db = getDatabase();
-    const result = db.prepare(`
-      SELECT 
-        job_title,
-        AVG(salary) as average_salary,
-        COUNT(*) as employee_count
-      FROM employees
-      WHERE LOWER(job_title) = LOWER(?)
-      GROUP BY job_title
-    `).get(jobTitle) as SalaryMetricsByJobTitle | undefined;
 
-    return result;
+    return db
+      .prepare(
+        `
+        SELECT
+          job_title,
+          ROUND(AVG(salary), 2) AS average_salary,
+          COUNT(*) AS employee_count
+        FROM employees
+        WHERE LOWER(job_title) = LOWER(?)
+        GROUP BY job_title
+      `
+      )
+      .get(jobTitle) as SalaryMetricsByJobTitle | undefined;
   }
 }

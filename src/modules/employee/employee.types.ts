@@ -22,6 +22,11 @@ export interface UpdateEmployeeDTO {
   salary?: number;
 }
 
+export interface DeductionBreakdown {
+  tds: number;
+  total: number;
+}
+
 export interface SalaryCalculation {
   employee_id: number;
   full_name: string;
@@ -29,11 +34,6 @@ export interface SalaryCalculation {
   gross_salary: number;
   deductions: DeductionBreakdown;
   net_salary: number;
-}
-
-export interface DeductionBreakdown {
-  tds: number;
-  total: number;
 }
 
 export interface SalaryMetricsByCountry {

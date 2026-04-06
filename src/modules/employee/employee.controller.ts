@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { EmployeeService, NotFoundError } from "./employee.service";
 import { EmployeeRepository } from "./employee.repository";
+import { EmployeeService, NotFoundError } from "./employee.service";
 import {
   CreateEmployeeSchema,
   UpdateEmployeeSchema,
@@ -8,18 +8,13 @@ import {
 
 const service = new EmployeeService(new EmployeeRepository());
 
-function parseId(
-  req: Request,
-  res: Response
-): number | null {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id) || id <= 0) {
-    res.status(400).json({
-      success: false,
-      message: "Invalid employee ID. ID must be a positive integer.",
-    });
+function parseEmployeeId(value: string): number | null {
+  const id = Number(value);
+
+  if (!Number.isInteger(id) || id <= 0) {
     return null;
   }
+
   return id;
 }
 
@@ -42,8 +37,15 @@ export function getEmployeeById(
   next: NextFunction
 ): void {
   try {
-    const id = parseId(req, res);
-    if (id === null) return;
+    const id = parseEmployeeId(req.params.id);
+
+    if (id === null) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid employee ID. ID must be a positive integer.",
+      });
+      return;
+    }
 
     const employee = service.getEmployeeById(id);
     res.status(200).json({ success: true, data: employee });
@@ -52,6 +54,7 @@ export function getEmployeeById(
       res.status(404).json({ success: false, message: error.message });
       return;
     }
+
     next(error);
   }
 }
@@ -63,6 +66,7 @@ export function createEmployee(
 ): void {
   try {
     const parsed = CreateEmployeeSchema.safeParse(req.body);
+
     if (!parsed.success) {
       res.status(400).json({
         success: false,
@@ -85,10 +89,18 @@ export function updateEmployee(
   next: NextFunction
 ): void {
   try {
-    const id = parseId(req, res);
-    if (id === null) return;
+    const id = parseEmployeeId(req.params.id);
+
+    if (id === null) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid employee ID. ID must be a positive integer.",
+      });
+      return;
+    }
 
     const parsed = CreateEmployeeSchema.safeParse(req.body);
+
     if (!parsed.success) {
       res.status(400).json({
         success: false,
@@ -105,6 +117,7 @@ export function updateEmployee(
       res.status(404).json({ success: false, message: error.message });
       return;
     }
+
     next(error);
   }
 }
@@ -115,10 +128,18 @@ export function patchEmployee(
   next: NextFunction
 ): void {
   try {
-    const id = parseId(req, res);
-    if (id === null) return;
+    const id = parseEmployeeId(req.params.id);
+
+    if (id === null) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid employee ID. ID must be a positive integer.",
+      });
+      return;
+    }
 
     const parsed = UpdateEmployeeSchema.safeParse(req.body);
+
     if (!parsed.success) {
       res.status(400).json({
         success: false,
@@ -135,6 +156,7 @@ export function patchEmployee(
       res.status(404).json({ success: false, message: error.message });
       return;
     }
+
     next(error);
   }
 }
@@ -145,18 +167,27 @@ export function deleteEmployee(
   next: NextFunction
 ): void {
   try {
-    const id = parseId(req, res);
-    if (id === null) return;
+    const id = parseEmployeeId(req.params.id);
+
+    if (id === null) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid employee ID. ID must be a positive integer.",
+      });
+      return;
+    }
 
     service.deleteEmployee(id);
-    res
-      .status(200)
-      .json({ success: true, message: `Employee ${id} deleted successfully` });
+    res.status(200).json({
+      success: true,
+      message: `Employee ${id} deleted successfully`,
+    });
   } catch (error) {
     if (error instanceof NotFoundError) {
       res.status(404).json({ success: false, message: error.message });
       return;
     }
+
     next(error);
   }
 }
