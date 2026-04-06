@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { z } from "zod";
 import { EmployeeRepository } from "./employee.repository";
 import { EmployeeService, NotFoundError } from "./employee.service";
 import {
@@ -31,8 +32,8 @@ function parseEmployeeId(value: string): number | null {
   return id;
 }
 
-function handleUpdateValidationError(
-  error: any
+function formatValidationError(
+  error: z.ZodError
 ): { success: false; message: string; errors?: Record<string, any>; formErrors?: any } {
   const flattened = error.flatten();
   return {
@@ -96,11 +97,7 @@ export function createEmployee(
     const parsed = CreateEmployeeSchema.safeParse(req.body);
 
     if (!parsed.success) {
-      res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: parsed.error.flatten().fieldErrors,
-      });
+      res.status(400).json(formatValidationError(parsed.error));
       return;
     }
 
@@ -130,7 +127,7 @@ export function updateEmployee(
     const parsed = CreateEmployeeSchema.safeParse(req.body);
 
     if (!parsed.success) {
-      res.status(400).json(handleUpdateValidationError(parsed.error));
+      res.status(400).json(formatValidationError(parsed.error));
       return;
     }
 
@@ -168,7 +165,7 @@ export function patchEmployee(
     const parsed = UpdateEmployeeSchema.safeParse(req.body);
 
     if (!parsed.success) {
-      res.status(400).json(handleUpdateValidationError(parsed.error));
+      res.status(400).json(formatValidationError(parsed.error));
       return;
     }
 
