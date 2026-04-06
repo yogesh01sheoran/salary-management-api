@@ -1,5 +1,6 @@
 import express from "express";
 import employeeRoutes from "./modules/employee/employee.routes";
+import salaryMetricsRoutes from "./modules/employee/salary.metrics.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import { runMigrations } from "./database/migrations";
 
@@ -17,6 +18,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api/employees", employeeRoutes);
+app.use("/api/salary-metrics", salaryMetricsRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({
