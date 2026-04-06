@@ -6,3 +6,5 @@ coverage/
 *.db-wal
 .env
 .DS_Store
+jest.config.js
+jest.config.js.map

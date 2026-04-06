@@ -115,7 +115,7 @@ export function updateEmployee(
       return;
     }
 
-    const parsed = CreateEmployeeSchema.safeParse(req.body);
+    const parsed = UpdateEmployeeSchema.safeParse(req.body);
 
     if (!parsed.success) {
       res.status(400).json({
