@@ -1,12 +1,28 @@
 import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
 import employeeRoutes from "./modules/employee/employee.routes";
 import salaryMetricsRoutes from "./modules/employee/salary.metrics.routes";
 import { errorHandler } from "./middleware/errorHandler";
-import { runMigrations } from "./database/migrations";
 
 const app = express();
 
-runMigrations();
+// Security middleware
+app.use(helmet());
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(",") || "*",
+  })
+);
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
+app.use(limiter);
 
 app.use(express.json());
 

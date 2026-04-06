@@ -106,7 +106,7 @@ export class EmployeeRepository {
           COUNT(*) AS employee_count
         FROM employees
         WHERE LOWER(country) = LOWER(?)
-        GROUP BY country
+        GROUP BY LOWER(country)
       `
       )
       .get(country) as SalaryMetricsByCountry | undefined;
@@ -126,7 +126,7 @@ export class EmployeeRepository {
           COUNT(*) AS employee_count
         FROM employees
         WHERE LOWER(job_title) = LOWER(?)
-        GROUP BY job_title
+        GROUP BY LOWER(job_title)
       `
       )
       .get(jobTitle) as SalaryMetricsByJobTitle | undefined;

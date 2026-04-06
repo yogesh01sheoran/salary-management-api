@@ -50,8 +50,9 @@ export function getAllEmployees(
   next: NextFunction
 ): void {
   try {
+    const MAX_PAGE_SIZE = 100;
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.max(1, parseInt(req.query.limit as string) || 20);
+    const limit = Math.min(MAX_PAGE_SIZE, Math.max(1, parseInt(req.query.limit as string) || 20));
     
     const result = service.getAllEmployees(page, limit);
     res.status(200).json({ success: true, ...result });
@@ -79,14 +80,6 @@ export function getEmployeeById(
     const employee = service.getEmployeeById(id);
     res.status(200).json({ success: true, data: employee });
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-      return;
-    }
-
     next(error);
   }
 }
@@ -137,14 +130,6 @@ export function updateEmployee(
     const employee = service.updateEmployee(id, parsed.data);
     res.status(200).json({ success: true, data: employee });
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-      return;
-    }
-
     next(error);
   }
 }
@@ -175,14 +160,6 @@ export function patchEmployee(
     const employee = service.updateEmployee(id, parsed.data);
     res.status(200).json({ success: true, data: employee });
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-      return;
-    }
-
     next(error);
   }
 }
@@ -210,14 +187,6 @@ export function deleteEmployee(
       message: `Employee ${id} deleted successfully`,
     });
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-      return;
-    }
-
     next(error);
   }
 }
@@ -246,14 +215,6 @@ export function getSalaryCalculation(
       data: calculation,
     });
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-      return;
-    }
-
     next(error);
   }
 }
@@ -281,14 +242,6 @@ export function getSalaryMetricsByCountry(
       data: metrics,
     });
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-      return;
-    }
-
     next(error);
   }
 }
@@ -316,14 +269,6 @@ export function getSalaryMetricsByJobTitle(
       data: metrics,
     });
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-      return;
-    }
-
     next(error);
   }
 }

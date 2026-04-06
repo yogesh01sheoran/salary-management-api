@@ -5,10 +5,10 @@ export const DB_CONFIG = {
     filename: ":memory:",
   },
   development: {
-    filename: path.join(__dirname, "../../data/salary_management.db"),
+    filename: path.join(__dirname, "../../data/salary_management_dev.db"),
   },
   production: {
-    filename: path.join(__dirname, "../../data/salary_management.db"),
+    filename: process.env.DB_PATH || path.join(__dirname, "../../data/salary_management.db"),
   },
 };
 
