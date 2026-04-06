@@ -8,11 +8,28 @@ import {
 } from "./employee.types";
 
 export class EmployeeRepository {
-  findAll(): Employee[] {
+  findAll(page: number = 1, limit: number = 20): { data: Employee[]; total: number; page: number; limit: number; totalPages: number } {
     const db = getDatabase();
-    return db
-      .prepare("SELECT * FROM employees ORDER BY id ASC")
-      .all() as Employee[];
+    const offset = (page - 1) * limit;
+    
+    const countResult = db
+      .prepare("SELECT COUNT(*) as count FROM employees")
+      .get() as { count: number };
+    const total = countResult.count;
+    
+    const data = db
+      .prepare("SELECT * FROM employees ORDER BY id ASC LIMIT ? OFFSET ?")
+      .all(limit, offset) as Employee[];
+    
+    const totalPages = Math.ceil(total / limit);
+    
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   findById(id: number): Employee | undefined {

@@ -6,10 +6,14 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ): void {
-  console.error(`[${req.method}] ${req.originalUrl} - Error:`, err);
+  const statusCode = (err as any).status || (err as any).statusCode || 500;
+  console.error(`[${req.method}] ${req.originalUrl} - Error (${statusCode}):`, err);
 
-  res.status(500).json({
+  const message =
+    statusCode < 500 ? err.message : "Internal server error";
+
+  res.status(statusCode).json({
     success: false,
-    message: "Internal server error",
+    message,
   });
 }

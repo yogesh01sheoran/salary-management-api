@@ -17,8 +17,8 @@ export class NotFoundError extends Error {
 export class EmployeeService {
   constructor(private readonly repository: EmployeeRepository) {}
 
-  getAllEmployees(): Employee[] {
-    return this.repository.findAll();
+  getAllEmployees(page: number = 1, limit: number = 20): { data: Employee[]; total: number; page: number; limit: number; totalPages: number } {
+    return this.repository.findAll(page, limit);
   }
 
   getEmployeeById(id: number): Employee {

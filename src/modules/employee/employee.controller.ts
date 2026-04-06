@@ -45,13 +45,16 @@ function formatValidationError(
 }
 
 export function getAllEmployees(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ): void {
   try {
-    const employees = service.getAllEmployees();
-    res.status(200).json({ success: true, data: employees });
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit as string) || 20);
+    
+    const result = service.getAllEmployees(page, limit);
+    res.status(200).json({ success: true, ...result });
   } catch (error) {
     next(error);
   }

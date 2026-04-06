@@ -14,7 +14,7 @@ export function runMigrations(): void {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
-    CREATE INDEX IF NOT EXISTS idx_employees_country ON employees(country);
-    CREATE INDEX IF NOT EXISTS idx_employees_job_title ON employees(job_title);
+    CREATE INDEX IF NOT EXISTS idx_employees_country_lower ON employees(LOWER(country));
+    CREATE INDEX IF NOT EXISTS idx_employees_job_title_lower ON employees(LOWER(job_title));
   `);
 }

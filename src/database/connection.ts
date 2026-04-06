@@ -7,8 +7,17 @@ let db: Database.Database | null = null;
 
 export function getDatabase(): Database.Database {
   if (!db) {
-    const env = (process.env.NODE_ENV as Environment) || "development";
-    const config = DB_CONFIG[env];
+    const nodeEnv = process.env.NODE_ENV;
+    const validEnv =
+      nodeEnv && nodeEnv in DB_CONFIG ? (nodeEnv as Environment) : "development";
+    if (nodeEnv && !(nodeEnv in DB_CONFIG)) {
+      console.warn(
+        "Unknown NODE_ENV '" +
+          nodeEnv +
+          "', falling back to 'development'"
+      );
+    }
+    const config = DB_CONFIG[validEnv];
     
     // Ensure data directory exists for file-based databases
     if (config.filename !== ":memory:") {
