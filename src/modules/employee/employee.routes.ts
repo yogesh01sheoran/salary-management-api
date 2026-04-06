@@ -4,6 +4,7 @@ import {
   deleteEmployee,
   getAllEmployees,
   getEmployeeById,
+  getSalaryCalculation,
   patchEmployee,
   updateEmployee,
 } from "./employee.controller";
@@ -11,6 +12,7 @@ import {
 const router = Router();
 
 router.get("/", getAllEmployees);
+router.get("/:id/salary-calculation", getSalaryCalculation);
 router.get("/:id", getEmployeeById);
 router.post("/", createEmployee);
 router.put("/:id", updateEmployee);

@@ -5,8 +5,21 @@ import {
   CreateEmployeeSchema,
   UpdateEmployeeSchema,
 } from "./employee.validator";
+import { calculateSalary } from "../../utils/salary.calculator";
 
 const service = new EmployeeService(new EmployeeRepository());
+
+type EmployeeIdParams = {
+  id: string;
+};
+
+type CountryParams = {
+  country: string;
+};
+
+type JobTitleParams = {
+  jobTitle: string;
+};
 
 function parseEmployeeId(value: string): number | null {
   const id = Number(value);
@@ -32,7 +45,7 @@ export function getAllEmployees(
 }
 
 export function getEmployeeById(
-  req: Request,
+  req: Request<EmployeeIdParams>,
   res: Response,
   next: NextFunction
 ): void {
@@ -51,7 +64,10 @@ export function getEmployeeById(
     res.status(200).json({ success: true, data: employee });
   } catch (error) {
     if (error instanceof NotFoundError) {
-      res.status(404).json({ success: false, message: error.message });
+      res.status(404).json({
+        success: false,
+        message: error.message,
+      });
       return;
     }
 
@@ -84,7 +100,7 @@ export function createEmployee(
 }
 
 export function updateEmployee(
-  req: Request,
+  req: Request<EmployeeIdParams>,
   res: Response,
   next: NextFunction
 ): void {
@@ -114,7 +130,10 @@ export function updateEmployee(
     res.status(200).json({ success: true, data: employee });
   } catch (error) {
     if (error instanceof NotFoundError) {
-      res.status(404).json({ success: false, message: error.message });
+      res.status(404).json({
+        success: false,
+        message: error.message,
+      });
       return;
     }
 
@@ -123,7 +142,7 @@ export function updateEmployee(
 }
 
 export function patchEmployee(
-  req: Request,
+  req: Request<EmployeeIdParams>,
   res: Response,
   next: NextFunction
 ): void {
@@ -153,7 +172,10 @@ export function patchEmployee(
     res.status(200).json({ success: true, data: employee });
   } catch (error) {
     if (error instanceof NotFoundError) {
-      res.status(404).json({ success: false, message: error.message });
+      res.status(404).json({
+        success: false,
+        message: error.message,
+      });
       return;
     }
 
@@ -162,7 +184,7 @@ export function patchEmployee(
 }
 
 export function deleteEmployee(
-  req: Request,
+  req: Request<EmployeeIdParams>,
   res: Response,
   next: NextFunction
 ): void {
@@ -178,13 +200,123 @@ export function deleteEmployee(
     }
 
     service.deleteEmployee(id);
+
     res.status(200).json({
       success: true,
       message: `Employee ${id} deleted successfully`,
     });
   } catch (error) {
     if (error instanceof NotFoundError) {
-      res.status(404).json({ success: false, message: error.message });
+      res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
+
+    next(error);
+  }
+}
+
+export function getSalaryCalculation(
+  req: Request<EmployeeIdParams>,
+  res: Response,
+  next: NextFunction
+): void {
+  try {
+    const id = parseEmployeeId(req.params.id);
+
+    if (id === null) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid employee ID. ID must be a positive integer.",
+      });
+      return;
+    }
+
+    const employee = service.getEmployeeById(id);
+    const calculation = calculateSalary(employee);
+
+    res.status(200).json({
+      success: true,
+      data: calculation,
+    });
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
+
+    next(error);
+  }
+}
+
+export function getSalaryMetricsByCountry(
+  req: Request<CountryParams>,
+  res: Response,
+  next: NextFunction
+): void {
+  try {
+    const country = req.params.country?.trim();
+
+    if (!country) {
+      res.status(400).json({
+        success: false,
+        message: "Country parameter is required",
+      });
+      return;
+    }
+
+    const metrics = service.getSalaryMetricsByCountry(country);
+
+    res.status(200).json({
+      success: true,
+      data: metrics,
+    });
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
+
+    next(error);
+  }
+}
+
+export function getSalaryMetricsByJobTitle(
+  req: Request<JobTitleParams>,
+  res: Response,
+  next: NextFunction
+): void {
+  try {
+    const jobTitle = req.params.jobTitle?.trim();
+
+    if (!jobTitle) {
+      res.status(400).json({
+        success: false,
+        message: "Job title parameter is required",
+      });
+      return;
+    }
+
+    const metrics = service.getAverageSalaryByJobTitle(jobTitle);
+
+    res.status(200).json({
+      success: true,
+      data: metrics,
+    });
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({
+        success: false,
+        message: error.message,
+      });
       return;
     }
 
