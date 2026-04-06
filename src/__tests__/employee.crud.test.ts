@@ -8,8 +8,6 @@ describe("Employee CRUD API", () => {
     db.exec("DELETE FROM employees");
   });
 
-  // ─── CREATE ──────────────────────────────────────────────────────────────
-
   describe("POST /api/employees", () => {
     it("should create a new employee with valid data", async () => {
       const payload = {
@@ -25,20 +23,20 @@ describe("Employee CRUD API", () => {
         .expect(201);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toMatchObject({
-        full_name: "Alice Johnson",
-        job_title: "Software Engineer",
-        country: "India",
-        salary: 80000,
-      });
+      expect(response.body.data).toMatchObject(payload);
       expect(response.body.data.id).toBeDefined();
       expect(response.body.data.created_at).toBeDefined();
+      expect(response.body.data.updated_at).toBeDefined();
     });
 
     it("should return 400 when full_name is missing", async () => {
       const response = await request(app)
         .post("/api/employees")
-        .send({ job_title: "Engineer", country: "India", salary: 50000 })
+        .send({
+          job_title: "Engineer",
+          country: "India",
+          salary: 50000,
+        })
         .expect(400);
 
       expect(response.body.success).toBe(false);
@@ -48,7 +46,11 @@ describe("Employee CRUD API", () => {
     it("should return 400 when job_title is missing", async () => {
       const response = await request(app)
         .post("/api/employees")
-        .send({ full_name: "Bob", country: "India", salary: 50000 })
+        .send({
+          full_name: "Bob",
+          country: "India",
+          salary: 50000,
+        })
         .expect(400);
 
       expect(response.body.success).toBe(false);
@@ -57,7 +59,11 @@ describe("Employee CRUD API", () => {
     it("should return 400 when country is missing", async () => {
       const response = await request(app)
         .post("/api/employees")
-        .send({ full_name: "Bob", job_title: "Engineer", salary: 50000 })
+        .send({
+          full_name: "Bob",
+          job_title: "Engineer",
+          salary: 50000,
+        })
         .expect(400);
 
       expect(response.body.success).toBe(false);
@@ -66,7 +72,11 @@ describe("Employee CRUD API", () => {
     it("should return 400 when salary is missing", async () => {
       const response = await request(app)
         .post("/api/employees")
-        .send({ full_name: "Bob", job_title: "Engineer", country: "India" })
+        .send({
+          full_name: "Bob",
+          job_title: "Engineer",
+          country: "India",
+        })
         .expect(400);
 
       expect(response.body.success).toBe(false);
@@ -107,15 +117,13 @@ describe("Employee CRUD API", () => {
           full_name: "Bob",
           job_title: "Engineer",
           country: "India",
-          salary: "not-a-number",
+          salary: "abc",
         })
         .expect(400);
 
       expect(response.body.success).toBe(false);
     });
   });
-
-  // ─── READ ALL ─────────────────────────────────────────────────────────────
 
   describe("GET /api/employees", () => {
     it("should return empty array when no employees exist", async () => {
@@ -127,6 +135,7 @@ describe("Employee CRUD API", () => {
 
     it("should return all employees", async () => {
       const db = getDatabase();
+
       db.exec(`
         INSERT INTO employees (full_name, job_title, country, salary)
         VALUES 
@@ -140,8 +149,6 @@ describe("Employee CRUD API", () => {
       expect(response.body.data).toHaveLength(2);
     });
   });
-
-  // ─── READ ONE ─────────────────────────────────────────────────────────────
 
   describe("GET /api/employees/:id", () => {
     it("should return an employee by ID", async () => {
@@ -177,8 +184,6 @@ describe("Employee CRUD API", () => {
       expect(response.body.success).toBe(false);
     });
   });
-
-  // ─── UPDATE ───────────────────────────────────────────────────────────────
 
   describe("PUT /api/employees/:id", () => {
     it("should update an employee fully", async () => {
@@ -219,8 +224,6 @@ describe("Employee CRUD API", () => {
     });
   });
 
-  // ─── PATCH ────────────────────────────────────────────────────────────────
-
   describe("PATCH /api/employees/:id", () => {
     it("should partially update an employee salary", async () => {
       const db = getDatabase();
@@ -256,8 +259,6 @@ describe("Employee CRUD API", () => {
       expect(response.body.success).toBe(false);
     });
   });
-
-  // ─── DELETE ───────────────────────────────────────────────────────────────
 
   describe("DELETE /api/employees/:id", () => {
     it("should delete an existing employee", async () => {
