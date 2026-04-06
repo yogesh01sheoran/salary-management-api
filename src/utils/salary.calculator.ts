@@ -10,11 +10,12 @@ const DEDUCTION_RULES: Record<string, number> = {
 };
 
 export function calculateDeductions(
-  grossSalary: number,
+  grossSalaryInCents: number,
   country: string
 ): DeductionBreakdown {
   const tdsRate = DEDUCTION_RULES[country.toLowerCase()] ?? 0;
-  const tds = Number((grossSalary * tdsRate).toFixed(2));
+  const tdsInCents = Math.round(grossSalaryInCents * tdsRate);
+  const tds = Number((tdsInCents / 100).toFixed(2));
 
   return {
     tds,
@@ -23,14 +24,16 @@ export function calculateDeductions(
 }
 
 export function calculateSalary(employee: Employee): SalaryCalculation {
+  // Employee.salary is stored in cents, convert to decimal for calculations
+  const grossSalary = employee.salary / 100;
   const deductions = calculateDeductions(employee.salary, employee.country);
-  const netSalary = Number((employee.salary - deductions.total).toFixed(2));
+  const netSalary = Number((grossSalary - deductions.total).toFixed(2));
 
   return {
     employee_id: employee.id,
     full_name: employee.full_name,
     country: employee.country,
-    gross_salary: employee.salary,
+    gross_salary: grossSalary,
     deductions,
     net_salary: netSalary,
   };

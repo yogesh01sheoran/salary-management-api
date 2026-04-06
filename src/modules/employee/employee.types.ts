@@ -8,6 +8,15 @@ export interface Employee {
   updated_at: string;
 }
 
+export type EmployeeResponse = Omit<Employee, 'salary'> & { salary: number };
+
+export function serializeEmployee(employee: Employee): EmployeeResponse {
+  return {
+    ...employee,
+    salary: employee.salary / 100, // Convert from cents to decimal
+  };
+}
+
 export interface CreateEmployeeDTO {
   full_name: string;
   job_title: string;

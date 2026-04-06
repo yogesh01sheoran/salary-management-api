@@ -9,7 +9,7 @@ export function runMigrations(): void {
       full_name TEXT NOT NULL,
       job_title TEXT NOT NULL,
       country TEXT NOT NULL,
-      salary REAL NOT NULL CHECK(salary > 0),
+      salary INTEGER NOT NULL CHECK(salary > 0),
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );

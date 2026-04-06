@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { EmployeeRepository } from "./employee.repository";
-import { EmployeeService, NotFoundError } from "./employee.service";
+import { EmployeeService } from "./employee.service";
 import {
   CreateEmployeeSchema,
   UpdateEmployeeSchema,
@@ -207,8 +207,17 @@ export function getSalaryCalculation(
       return;
     }
 
-    const employee = service.getEmployeeById(id);
-    const calculation = calculateSalary(employee);
+    // Retrieve raw employee data for salary calculation (not serialized)
+    const rawEmployee = new EmployeeRepository().findById(id);
+    if (!rawEmployee) {
+      res.status(404).json({
+        success: false,
+        message: `Employee with ID ${id} not found`,
+      });
+      return;
+    }
+
+    const calculation = calculateSalary(rawEmployee);
 
     res.status(200).json({
       success: true,

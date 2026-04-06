@@ -19,21 +19,21 @@ describe("Salary Calculation API", () => {
       "Raj Kumar",
       "Software Engineer",
       "India",
-      100000
+      10000000
     ).lastInsertRowid as number;
 
     usEmployeeId = insert.run(
       "John Smith",
       "Product Manager",
       "United States",
-      150000
+      15000000
     ).lastInsertRowid as number;
 
     germanyEmployeeId = insert.run(
       "Hans Mueller",
       "Designer",
       "Germany",
-      90000
+      9000000
     ).lastInsertRowid as number;
   });
 
@@ -115,7 +115,7 @@ describe("Salary Calculation API", () => {
         .prepare(
           "INSERT INTO employees (full_name, job_title, country, salary) VALUES (?, ?, ?, ?)"
         )
-        .run("Decimal User", "Engineer", "India", 75500);
+        .run("Decimal User", "Engineer", "India", 7550000);
 
       const response = await request(app)
         .get(`/api/employees/${result.lastInsertRowid}/salary-calculation`)

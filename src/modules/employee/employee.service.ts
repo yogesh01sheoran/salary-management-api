@@ -5,6 +5,7 @@ import {
   UpdateEmployeeDTO,
   SalaryMetricsByCountry,
   SalaryMetricsByJobTitle,
+  serializeEmployee,
 } from "./employee.types";
 
 export class NotFoundError extends Error {
@@ -16,11 +17,31 @@ export class NotFoundError extends Error {
   }
 }
 
+function serializeMetricsByCountry(metrics: SalaryMetricsByCountry): SalaryMetricsByCountry {
+  return {
+    ...metrics,
+    minimum_salary: metrics.minimum_salary / 100,
+    maximum_salary: metrics.maximum_salary / 100,
+    average_salary: Math.round((metrics.average_salary / 100) * 100) / 100,
+  };
+}
+
+function serializeMetricsByJobTitle(metrics: SalaryMetricsByJobTitle): SalaryMetricsByJobTitle {
+  return {
+    ...metrics,
+    average_salary: Math.round((metrics.average_salary / 100) * 100) / 100,
+  };
+}
+
 export class EmployeeService {
   constructor(private readonly repository: EmployeeRepository) {}
 
   getAllEmployees(page: number = 1, limit: number = 20): { data: Employee[]; total: number; page: number; limit: number; totalPages: number } {
-    return this.repository.findAll(page, limit);
+    const result = this.repository.findAll(page, limit);
+    return {
+      ...result,
+      data: result.data.map(serializeEmployee),
+    };
   }
 
   getEmployeeById(id: number): Employee {
@@ -30,11 +51,12 @@ export class EmployeeService {
       throw new NotFoundError(`Employee with ID ${id} not found`);
     }
 
-    return employee;
+    return serializeEmployee(employee);
   }
 
   createEmployee(data: CreateEmployeeDTO): Employee {
-    return this.repository.create(data);
+    const employee = this.repository.create(data);
+    return serializeEmployee(employee);
   }
 
   updateEmployee(id: number, data: UpdateEmployeeDTO): Employee {
@@ -44,7 +66,7 @@ export class EmployeeService {
       throw new NotFoundError(`Employee with ID ${id} not found`);
     }
 
-    return employee;
+    return serializeEmployee(employee);
   }
 
   deleteEmployee(id: number): void {
@@ -62,7 +84,7 @@ export class EmployeeService {
       throw new NotFoundError(`No employees found in country: ${country}`);
     }
 
-    return metrics;
+    return serializeMetricsByCountry(metrics);
   }
 
   getAverageSalaryByJobTitle(jobTitle: string): SalaryMetricsByJobTitle {
@@ -74,6 +96,6 @@ export class EmployeeService {
       );
     }
 
-    return metrics;
+    return serializeMetricsByJobTitle(metrics);
   }
 }

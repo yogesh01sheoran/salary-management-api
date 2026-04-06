@@ -10,35 +10,35 @@ describe("salary.calculator", () => {
     full_name: "Test User",
     job_title: "Engineer",
     country: "India",
-    salary: 100000,
+    salary: 10000000, // 100000.00 in cents
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   };
 
   describe("calculateDeductions", () => {
     it("returns 10 percent TDS for India", () => {
-      expect(calculateDeductions(100000, "India")).toEqual({
+      expect(calculateDeductions(10000000, "India")).toEqual({
         tds: 10000,
         total: 10000,
       });
     });
 
     it("returns 12 percent TDS for United States", () => {
-      expect(calculateDeductions(100000, "United States")).toEqual({
+      expect(calculateDeductions(10000000, "United States")).toEqual({
         tds: 12000,
         total: 12000,
       });
     });
 
     it("returns zero deductions for unsupported countries", () => {
-      expect(calculateDeductions(100000, "Germany")).toEqual({
+      expect(calculateDeductions(10000000, "Germany")).toEqual({
         tds: 0,
         total: 0,
       });
     });
 
     it("handles decimal salary values safely", () => {
-      expect(calculateDeductions(33333.33, "India")).toEqual({
+      expect(calculateDeductions(3333333, "India")).toEqual({
         tds: 3333.33,
         total: 3333.33,
       });

@@ -51,39 +51,38 @@ export class EmployeeRepository {
       )
       .run(data);
 
-    return this.findById(result.lastInsertRowid as number)!;
+    const created = this.findById(result.lastInsertRowid as number);
+    if (!created) {
+      throw new Error('Failed to retrieve employee after insert');
+    }
+    return created;
   }
 
   update(id: number, data: UpdateEmployeeDTO): Employee | undefined {
     const db = getDatabase();
-    const existing = this.findById(id);
-
-    if (!existing) return undefined;
-
-    const updated = {
-      ...existing,
-      ...data,
-    };
-
-    db.prepare(
+    
+    const updated = db
+      .prepare(
+        `
+        UPDATE employees
+        SET full_name = COALESCE(@full_name, full_name),
+            job_title = COALESCE(@job_title, job_title),
+            country = COALESCE(@country, country),
+            salary = COALESCE(@salary, salary),
+            updated_at = datetime('now')
+        WHERE id = @id
+        RETURNING *
       `
-      UPDATE employees
-      SET full_name = @full_name,
-          job_title = @job_title,
-          country = @country,
-          salary = @salary,
-          updated_at = datetime('now')
-      WHERE id = @id
-    `
-    ).run({
-      id,
-      full_name: updated.full_name,
-      job_title: updated.job_title,
-      country: updated.country,
-      salary: updated.salary,
-    });
+      )
+      .get({
+        id,
+        full_name: data.full_name,
+        job_title: data.job_title,
+        country: data.country,
+        salary: data.salary,
+      }) as Employee | undefined;
 
-    return this.findById(id);
+    return updated;
   }
 
   delete(id: number): boolean {
@@ -99,7 +98,7 @@ export class EmployeeRepository {
       .prepare(
         `
         SELECT
-          country,
+          MIN(country) AS country,
           MIN(salary) AS minimum_salary,
           MAX(salary) AS maximum_salary,
           ROUND(AVG(salary), 2) AS average_salary,
@@ -121,7 +120,7 @@ export class EmployeeRepository {
       .prepare(
         `
         SELECT
-          job_title,
+          MIN(job_title) AS job_title,
           ROUND(AVG(salary), 2) AS average_salary,
           COUNT(*) AS employee_count
         FROM employees

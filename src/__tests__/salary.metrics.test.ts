@@ -9,12 +9,12 @@ describe("Salary Metrics API", () => {
 
     db.exec(`
       INSERT INTO employees (full_name, job_title, country, salary) VALUES
-        ('Alice Kumar', 'Software Engineer', 'India', 80000),
-        ('Bob Singh', 'Software Engineer', 'India', 90000),
-        ('Carol Patel', 'Product Manager', 'India', 120000),
-        ('David Smith', 'Software Engineer', 'United States', 150000),
-        ('Eve Johnson', 'Product Manager', 'United States', 180000),
-        ('Frank Mueller', 'Designer', 'Germany', 70000)
+        ('Alice Kumar', 'Software Engineer', 'India', 8000000),
+        ('Bob Singh', 'Software Engineer', 'India', 9000000),
+        ('Carol Patel', 'Product Manager', 'India', 12000000),
+        ('David Smith', 'Software Engineer', 'United States', 15000000),
+        ('Eve Johnson', 'Product Manager', 'United States', 18000000),
+        ('Frank Mueller', 'Designer', 'Germany', 7000000)
     `);
   });
 
