@@ -1,4 +1,6 @@
-export default {
+import type { Config } from "jest";
+
+const config: Config = {
   preset: "ts-jest",
   testEnvironment: "node",
   roots: ["<rootDir>/src"],
@@ -6,5 +8,7 @@ export default {
   collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/server.ts"],
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov"],
-  setupFilesAfterFramework: ["<rootDir>/src/__tests__/setup.ts"],
+  setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
 };
+
+export default config;
