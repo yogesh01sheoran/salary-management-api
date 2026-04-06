@@ -31,6 +31,18 @@ function parseEmployeeId(value: string): number | null {
   return id;
 }
 
+function handleUpdateValidationError(
+  error: any
+): { success: false; message: string; errors?: Record<string, any>; formErrors?: any } {
+  const flattened = error.flatten();
+  return {
+    success: false,
+    message: "Validation failed",
+    errors: flattened.fieldErrors,
+    formErrors: flattened.formErrors,
+  };
+}
+
 export function getAllEmployees(
   _req: Request,
   res: Response,
@@ -115,14 +127,10 @@ export function updateEmployee(
       return;
     }
 
-    const parsed = UpdateEmployeeSchema.safeParse(req.body);
+    const parsed = CreateEmployeeSchema.safeParse(req.body);
 
     if (!parsed.success) {
-      res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: parsed.error.flatten().fieldErrors,
-      });
+      res.status(400).json(handleUpdateValidationError(parsed.error));
       return;
     }
 
@@ -160,11 +168,7 @@ export function patchEmployee(
     const parsed = UpdateEmployeeSchema.safeParse(req.body);
 
     if (!parsed.success) {
-      res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: parsed.error.flatten().fieldErrors,
-      });
+      res.status(400).json(handleUpdateValidationError(parsed.error));
       return;
     }
 

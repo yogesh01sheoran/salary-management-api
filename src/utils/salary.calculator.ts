@@ -5,15 +5,15 @@ import {
 } from "../modules/employee/employee.types";
 
 const DEDUCTION_RULES: Record<string, number> = {
-  India: 0.1,
-  "United States": 0.12,
+  india: 0.1,
+  "united states": 0.12,
 };
 
 export function calculateDeductions(
   grossSalary: number,
   country: string
 ): DeductionBreakdown {
-  const tdsRate = DEDUCTION_RULES[country] ?? 0;
+  const tdsRate = DEDUCTION_RULES[country.toLowerCase()] ?? 0;
   const tds = Number((grossSalary * tdsRate).toFixed(2));
 
   return {
